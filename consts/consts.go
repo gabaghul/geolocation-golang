@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	rootEndpoint   = "https://wft-geo-db.p.rapidapi.com/v1/geo"
-	CitiesEndpoint = rootEndpoint + "/cities"
+	rootEndpoint        = "https://wft-geo-db.p.rapidapi.com/v1/geo"
+	CitiesEndpoint      = rootEndpoint + "/cities"
+	DefaultErrorMessage = "something went wrong! see application log for more details"
 )
 
 var (
@@ -27,9 +28,9 @@ func GetApiKey() string {
 }
 
 func GetHTTPClient() *http.Client {
-	once.Do(func() {
+	if client == nil {
 		client = &http.Client{}
-	})
+	}
 
 	return client
 }

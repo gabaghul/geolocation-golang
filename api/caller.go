@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -28,9 +29,14 @@ func GetCityInfoByName(cityName string) (cities models.GeoAPICities, err error) 
 	req.Header = headers
 
 	res, err := client.Do(req)
-	if err != nil || res.StatusCode != http.StatusOK {
+	if err != nil {
 		return
 	}
+	if res.StatusCode != http.StatusOK {
+		err = fmt.Errorf("Unexpected status code %d:%s", res.StatusCode, res.Status)
+		return
+	}
+	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -59,6 +65,11 @@ func GetNearbyCities(cityID int64) (cities models.GeoAPICities, err error) {
 	if err != nil {
 		return
 	}
+	if res.StatusCode != http.StatusOK {
+		err = fmt.Errorf("Unexpected status code %d:%s", res.StatusCode, res.Status)
+		return
+	}
+	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
