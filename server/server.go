@@ -2,9 +2,11 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"os"
 
+	"github.com/gabaghul/geolocation-golang/consts"
 	"github.com/gabaghul/geolocation-golang/logger"
 	"github.com/gabaghul/geolocation-golang/services"
 	"github.com/gorilla/mux"
@@ -26,15 +28,22 @@ func Start(ctx context.Context) {
 		cityName := params["cityName"]
 		log.Debug().Msgf("CALLED /nearbyCities/%s", params["cityName"])
 
-		res, err := services.GetNearbyCities(ctx, cityName)
+		cities, err := services.GetNearbyCities(ctx, cityName)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			res := []byte(consts.DefaultErrorMessage)
 			w.Write(res)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		res, err := json.Marshal(&cities)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(res)
+			return
+		}
 		w.Write(res)
 	})
 

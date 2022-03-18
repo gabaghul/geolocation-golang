@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 	"time"
 
@@ -12,23 +11,21 @@ import (
 	"github.com/gabaghul/geolocation-golang/models"
 )
 
-func GetNearbyCities(ctx context.Context, cityName string) (res []byte, err error) {
+func GetNearbyCities(ctx context.Context, cityName string) (responseCities []models.Cities, err error) {
 	log := logger.GetLogger()
 
 	cities, err := api.GetCityInfoByName(cityName)
 	if err != nil {
 		log.Err(err).Msgf(consts.DefaultErrorMessage)
-		res = []byte(consts.DefaultErrorMessage)
 		return
 	}
 
-	responseCities := make([]models.Cities, len(cities.Data))
+	responseCities = make([]models.Cities, len(cities.Data))
 	time.Sleep(time.Second * 1)
 	for i, city := range cities.Data {
 		nearby, errFor := api.GetNearbyCities(city.Id)
 		if errFor != nil {
 			log.Err(errFor).Msgf(consts.DefaultErrorMessage)
-			res = []byte(consts.DefaultErrorMessage)
 			return
 		}
 
@@ -45,5 +42,5 @@ func GetNearbyCities(ctx context.Context, cityName string) (res []byte, err erro
 		time.Sleep(time.Second * 2)
 	}
 
-	return json.Marshal(&responseCities)
+	return
 }
